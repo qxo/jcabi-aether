@@ -29,25 +29,26 @@
  */
 package com.jcabi.aether.plugin;
 
-import com.jcabi.aether.Aether;
-import com.jcabi.log.Logger;
 import java.util.Collection;
 import java.util.List;
+
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
-import org.slf4j.impl.StaticLoggerBinder;
-import org.sonatype.aether.RepositorySystemSession;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.resolution.DependencyResolutionException;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
-import org.sonatype.aether.util.artifact.JavaScopes;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.util.artifact.JavaScopes;
+
+import com.jcabi.aether.Aether;
+import com.jcabi.log.Logger;
 
 /**
  * Finds all artifacts by names in the current project.
  *
  * @author Yegor Bugayenko (yegor@tpc2.com)
- * @version $Id$
+ * @version $Id: 1ba5b0e8841cdeaa698cb1fcaa4b2ab1fbfb8cc6 $
  * @goal run
  * @phase test
  * @threadSafe
@@ -81,7 +82,7 @@ public class RunMojo extends AbstractMojo {
     @Override
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public final void execute() throws MojoFailureException {
-        StaticLoggerBinder.getSingleton().setMavenLog(this.getLog());
+      //  StaticLoggerBinder.getSingleton().setMavenLog(this.getLog());
         final Aether aether = new Aether(
             this.project,
             this.session.getLocalRepository().getBasedir()

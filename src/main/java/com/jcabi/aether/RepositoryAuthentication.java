@@ -29,58 +29,107 @@
  */
 package com.jcabi.aether;
 
+import java.lang.reflect.Field;
+
+import org.eclipse.aether.repository.Authentication;
+import org.eclipse.aether.util.repository.AuthenticationBuilder;
+
 import com.jcabi.aspects.Immutable;
-import org.sonatype.aether.repository.Authentication;
 
 /**
  * Parameter holder for org.sonatype.aether.repository.Authentication.
  *
  * @author Mauricio Herrera (oruam85@gmail.com)
- * @version $Id$
+ * @version $Id: 3a98753be52674f911a8a9f568b65df1889718cc $
  */
 @Immutable
 public final class RepositoryAuthentication {
 
-    /**
-     * The user name.
-     */
-    private final transient String username;
+//    /**
+//     * The user name.
+//     */
+//    private final transient String username;
+//
+//    /**
+//     * The password.
+//     */
+//    @Immutable.Array
+//    private final transient char[] password;
+//
+//    /**
+//     * The path to the private key file.
+//     */
+//    private final transient String privatekeyfile;
+//
+//    /**
+//     * The passphrase for the private key file.
+//     */
+//    @Immutable.Array
+//    private final transient char[] passphrase;
+//    
 
-    /**
-     * The password.
-     */
-    @Immutable.Array
-    private final transient char[] password;
-
-    /**
-     * The path to the private key file.
-     */
-    private final transient String privatekeyfile;
-
-    /**
-     * The passphrase for the private key file.
-     */
-    @Immutable.Array
-    private final transient char[] passphrase;
-
+		private final transient String key;
+		
+		private final transient String valueString;
+		
+		 @Immutable.Array
+		private final transient char[] valueChars;
+		
     /**
      * Creates a new authentication with the specified properties.
      * @param auth The authentication object.
      */
     @SuppressWarnings("PMD.NullAssignment")
     public RepositoryAuthentication(final Authentication auth) {
-        this.username = auth.getUsername();
-        if (auth.getPassword() == null) {
-            this.password = null;
-        } else {
-            this.password = auth.getPassword().toCharArray();
-        }
-        this.privatekeyfile = auth.getPrivateKeyFile();
-        if (auth.getPassphrase() == null) {
-            this.passphrase = null;
-        } else {
-            this.passphrase = auth.getPassphrase().toCharArray();
-        }
+    	
+    		//FIXME TODO : Authentication is not  Immutable
+    		Class<? extends Authentication> cls = auth.getClass();
+			try {
+				Field keyField = cls.getField("key");
+				keyField.setAccessible(true);
+
+				key = (String)keyField.get(auth);
+				
+				Field valueField = cls.getField("value");
+				valueField.setAccessible(true);
+				
+				Object val = valueField.get(auth);
+				if(val instanceof char[]){
+
+					valueString = null;
+					valueChars = (char[])val;
+				}else{
+					valueChars =  null;
+					valueString = (String)val;
+				}
+				
+			} catch (NoSuchFieldException e) {
+				throw new IllegalArgumentException(e);
+			} catch (SecurityException e) {
+				throw new IllegalArgumentException(e);
+			} catch (IllegalArgumentException e) {
+				throw new IllegalArgumentException(e);
+			} catch (IllegalAccessException e) {
+				throw new IllegalArgumentException(e);
+			}
+		
+//    	this.username =  null;
+//    	this.password=null;
+//    	this.privatekeyfile=null;
+//    	this.passphrase = null;
+   
+//        this.username = auth.getUsername();
+//        if (auth.getPassword() == null) {
+//            this.password = null;
+//        } else {
+//            this.password = auth.getPassword().toCharArray();
+//        }
+//        this.privatekeyfile = auth.getPrivateKeyFile();
+//        if (auth.getPassphrase() == null) {
+//            this.passphrase = null;
+//        } else {
+//            this.passphrase = auth.getPassphrase().toCharArray();
+//        }
     }
 
     /**
@@ -88,11 +137,13 @@ public final class RepositoryAuthentication {
      * @return The Authentication object.
      */
     public Authentication getAuthentication() {
-        return new Authentication(
-            this.username,
-            this.password,
-            this.privatekeyfile,
-            this.passphrase
-        );
+    	 AuthenticationBuilder builder = new AuthenticationBuilder();
+    	 if(valueString == null){
+    		 builder.addSecret(key, valueChars);
+    	 }else{
+    		 builder.addString(key, valueString);
+    	 }
+		return builder.build();
+      //  return new AuthenticationBuilder().addUsername(username).addPassword(password).addPrivateKey(privatekeyfile, passphrase).build();
     }
 }

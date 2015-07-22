@@ -29,23 +29,25 @@
  */
 package com.jcabi;
 
-import com.jcabi.aether.Aether;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
+
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.repository.RemoteRepository;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.repository.RemoteRepository;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
+
+import com.jcabi.aether.Aether;
 
 /**
  * Test case for {@link com.jcabi.aether.Aether}.
  * @author Yegor Bugayenko (yegor@tpc2.com)
- * @version $Id$
+ * @version $Id: 56c68bb818cfe9de51137d280e58fd1072fdb933 $
  */
 public final class AetherTest {
 
@@ -63,11 +65,11 @@ public final class AetherTest {
     @Test
     public void resolvesBasicDependency() throws Exception {
         final Collection<RemoteRepository> remotes = Arrays.asList(
-            new RemoteRepository(
+            new RemoteRepository.Builder(
                 "central",
                 "default",
                 "http://repo1.maven.org/maven2/"
-            )
+            ).build()
         );
         final File local = this.temp.newFolder();
         final Collection<Artifact> deps = new Aether(remotes, local).resolve(

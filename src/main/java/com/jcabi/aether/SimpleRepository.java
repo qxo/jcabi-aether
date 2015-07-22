@@ -29,16 +29,19 @@
  */
 package com.jcabi.aether;
 
-import com.jcabi.aspects.Immutable;
 import java.util.LinkedList;
 import java.util.List;
-import org.sonatype.aether.repository.RemoteRepository;
-import org.sonatype.aether.repository.RepositoryPolicy;
+
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.repository.RepositoryPolicy;
+import org.eclipse.aether.repository.RemoteRepository.Builder;
+
+import com.jcabi.aspects.Immutable;
 
 /**
  * Parameter holder for a RemoteRepository without mirror.
  * @author Mauricio Herrera (oruam85@gmail.com)
- * @version $Id$
+ * @version $Id: 43dfe7b5ae90415732af52be05e6f1e14debd178 $
  */
 @Immutable
 public final class SimpleRepository {
@@ -113,22 +116,24 @@ public final class SimpleRepository {
      * @return Remote repository.
      */
     public RemoteRepository remote() {
-        final RemoteRepository remote = new RemoteRepository();
-        remote.setId(this.identifier);
-        remote.setContentType(this.type);
-        remote.setUrl(this.url);
-        remote.setPolicy(false, this.release);
-        remote.setPolicy(true, this.snapshot);
+    	Builder builder = new Builder(identifier,type,url);
         if (this.authentication != null) {
-            remote.setAuthentication(this.authentication.getAuthentication());
+        	builder.setAuthentication(this.authentication.getAuthentication());
         }
         if (this.repoproxy != null) {
-            remote.setProxy(this.repoproxy.getProxy());
+        	builder.setProxy(this.repoproxy.getProxy());
         }
-        remote.setRepositoryManager(this.manager);
+        builder.setRepositoryManager(this.manager);
         final List<RemoteRepository> remotes =
             new LinkedList<RemoteRepository>();
-        remote.setMirroredRepositories(remotes);
+        builder.setMirroredRepositories(remotes);
+        final RemoteRepository remote =builder.build();
+//        remote.setId(this.identifier);
+//        remote.setContentType(this.type);
+//        remote.setUrl(this.url);
+//        remote.setPolicy(false, this.release);
+//        remote.setPolicy(true, this.snapshot);
+
         return remote;
     }
 }

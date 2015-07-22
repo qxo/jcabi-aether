@@ -29,24 +29,28 @@
  */
 package com.jcabi.aether;
 
-import com.jcabi.aspects.Cacheable;
-import com.jcabi.log.Logger;
 import java.util.Collection;
 import java.util.List;
+
 import javax.validation.constraints.NotNull;
-import lombok.EqualsAndHashCode;
+
 import org.apache.maven.model.Exclusion;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.graph.DependencyFilter;
-import org.sonatype.aether.graph.DependencyNode;
-import org.sonatype.aether.resolution.DependencyResolutionException;
-import org.sonatype.aether.util.artifact.JavaScopes;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.graph.DependencyFilter;
+import org.eclipse.aether.graph.DependencyNode;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.util.artifact.JavaScopes;
+
+import com.jcabi.aspects.Cacheable;
+import com.jcabi.log.Logger;
+
+import lombok.EqualsAndHashCode;
 
 /**
  * One root artifact found in the project.
  *
  * @author Yegor Bugayenko (yegor@tpc2.com)
- * @version $Id$
+ * @version $Id: 5efb54eba3f052bc4c1a419afc6957b68926e7b2 $
  * @since 0.7.16
  */
 @EqualsAndHashCode(of = { "aether", "art", "exclusions" })

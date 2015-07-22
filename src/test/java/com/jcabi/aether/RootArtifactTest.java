@@ -33,22 +33,23 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import org.apache.maven.model.Exclusion;
 import org.apache.maven.project.MavenProject;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.repository.RemoteRepository;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.repository.RemoteRepository;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
 
 /**
  * Test case for {@link RootArtifact}.
  * @author Yegor Bugayenko (yegor@tpc2.com)
- * @version $Id$
+ * @version $Id: 7b4141b7644e1e798841a341771679d1326baa2e $
  */
 public final class RootArtifactTest {
 
@@ -113,11 +114,11 @@ public final class RootArtifactTest {
         final File local = this.temp.newFolder();
         final MavenProject project = Mockito.mock(MavenProject.class);
         final List<RemoteRepository> repos = Arrays.asList(
-            new RemoteRepository(
+            new RemoteRepository.Builder(
                 "maven-central",
                 "default",
                 "http://repo1.maven.org/maven2/"
-            )
+            ).build()
         );
         Mockito.doReturn(repos).when(project).getRemoteProjectRepositories();
         return new Aether(project, local);

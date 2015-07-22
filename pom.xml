@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+ <?xml version="1.0"?>
 <!--
  * Copyright (c) 2012-2015, jcabi.com
  * All rights reserved.
@@ -38,7 +38,7 @@
         <version>1.17</version>
     </parent>
     <artifactId>jcabi-aether</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0-eclipse-aether-b01</version>
     <packaging>jar</packaging>
     <name>jcabi-aether</name>
     <description>Wrapper of Sonatype Aether</description>
@@ -62,9 +62,9 @@
         </site>
     </distributionManagement>
     <properties>
-        <maven.version>3.0.5</maven.version>
+        <maven.version>3.1.1</maven.version>
         <sisu.version>2.3.4</sisu.version>
-        <aether.version>1.13.1</aether.version>
+        <aether.version>0.9.0.M2</aether.version>
     </properties>
     <dependencies>
         <dependency>
@@ -104,39 +104,46 @@
                     <artifactId>slf4j-log4j12</artifactId>
                 </exclusion>
             </exclusions>
-        </dependency>
-        <dependency>
+        </dependency><!-- 
+         <dependency>
             <groupId>org.sonatype.aether</groupId>
+            <artifactId>aether-api</artifactId>
+            <version>1.13.1</version>
+            <scope>provided</scope>
+        </dependency>
+         -->
+        <dependency>
+            <groupId>org.eclipse.aether</groupId>
             <artifactId>aether-api</artifactId>
             <version>${aether.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.sonatype.aether</groupId>
+            <groupId>org.eclipse.aether</groupId>
             <artifactId>aether-spi</artifactId>
             <version>${aether.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.sonatype.aether</groupId>
+            <groupId>org.eclipse.aether</groupId>
             <artifactId>aether-util</artifactId>
             <version>${aether.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.sonatype.aether</groupId>
+            <groupId>org.eclipse.aether</groupId>
             <artifactId>aether-connector-file</artifactId>
             <version>${aether.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.sonatype.aether</groupId>
+            <groupId>org.eclipse.aether</groupId>
             <artifactId>aether-connector-asynchttpclient</artifactId>
             <version>${aether.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.sonatype.aether</groupId>
+            <groupId>org.eclipse.aether</groupId>
             <artifactId>aether-connector-wagon</artifactId>
             <version>${aether.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.sonatype.aether</groupId>
+            <groupId>org.eclipse.aether</groupId>
             <artifactId>aether-impl</artifactId>
             <version>${aether.version}</version>
         </dependency>
@@ -144,13 +151,9 @@
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-aether-provider</artifactId>
             <version>${maven.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.sonatype.aether</groupId>
-                    <artifactId>aether-impl</artifactId>
-                </exclusion>
-            </exclusions>
+
         </dependency>
+        
         <dependency>
             <groupId>org.apache.maven.wagon</groupId>
             <artifactId>wagon-provider-api</artifactId>
@@ -163,7 +166,7 @@
             <scope>provided</scope>
             <exclusions>
                 <exclusion>
-                    <groupId>org.sonatype.aether</groupId>
+                    <groupId>org.eclipse.aether</groupId>
                     <artifactId>aether-impl</artifactId>
                 </exclusion>
                 <exclusion>
@@ -250,6 +253,7 @@
                     <name>aether-test.aws.key</name>
                 </property>
             </activation>
+            
             <build>
                 <plugins>
                     <plugin>

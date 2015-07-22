@@ -29,18 +29,20 @@
  */
 package com.jcabi.aether;
 
+import org.eclipse.aether.transfer.AbstractTransferListener;
+import org.eclipse.aether.transfer.TransferEvent;
+
 import com.jcabi.aspects.Immutable;
 import com.jcabi.aspects.Loggable;
+
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.sonatype.aether.transfer.AbstractTransferListener;
-import org.sonatype.aether.transfer.TransferEvent;
 
 /**
  * Logger of transfer events.
  *
  * @author Yegor Bugayenko (yegor@tpc2.com)
- * @version $Id$
+ * @version $Id: cf7b4fc85829d72acd15bcfabfd3729002f700c5 $
  * @since 0.1.6
  */
 @Immutable

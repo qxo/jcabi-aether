@@ -29,9 +29,6 @@
  */
 package com.jcabi.aether;
 
-import com.jcabi.aspects.Immutable;
-import com.jcabi.aspects.Loggable;
-import com.jcabi.log.Logger;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,11 +37,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+
 import javax.validation.constraints.NotNull;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+
+import org.apache.maven.artifact.repository.MavenArtifactRepository;
 import org.apache.maven.project.MavenProject;
-import org.apache.maven.repository.internal.MavenRepositorySystemSession;
+import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.apache.maven.settings.Mirror;
 import org.apache.maven.settings.Settings;
 import org.apache.maven.settings.SettingsUtils;
@@ -55,23 +53,34 @@ import org.apache.maven.settings.building.SettingsBuilder;
 import org.apache.maven.settings.building.SettingsBuildingException;
 import org.apache.maven.settings.building.SettingsBuildingRequest;
 import org.apache.maven.settings.building.SettingsBuildingResult;
-import org.sonatype.aether.RepositorySystem;
-import org.sonatype.aether.RepositorySystemSession;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.collection.CollectRequest;
-import org.sonatype.aether.graph.Dependency;
-import org.sonatype.aether.graph.DependencyFilter;
-import org.sonatype.aether.repository.Authentication;
-import org.sonatype.aether.repository.LocalRepository;
-import org.sonatype.aether.repository.Proxy;
-import org.sonatype.aether.repository.RemoteRepository;
-import org.sonatype.aether.resolution.ArtifactResult;
-import org.sonatype.aether.resolution.DependencyRequest;
-import org.sonatype.aether.resolution.DependencyResolutionException;
-import org.sonatype.aether.resolution.DependencyResult;
-import org.sonatype.aether.util.filter.DependencyFilterUtils;
-import org.sonatype.aether.util.repository.DefaultMirrorSelector;
-import org.sonatype.aether.util.repository.DefaultProxySelector;
+import org.eclipse.aether.DefaultRepositorySystemSession;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.collection.CollectRequest;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.graph.DependencyFilter;
+import org.eclipse.aether.repository.ArtifactRepository;
+import org.eclipse.aether.repository.Authentication;
+import org.eclipse.aether.repository.LocalRepository;
+import org.eclipse.aether.repository.Proxy;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.ArtifactResult;
+import org.eclipse.aether.resolution.DependencyRequest;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.resolution.DependencyResult;
+import org.eclipse.aether.util.filter.DependencyFilterUtils;
+import org.eclipse.aether.util.repository.AuthenticationBuilder;
+import org.eclipse.aether.util.repository.DefaultMirrorSelector;
+import org.eclipse.aether.util.repository.DefaultProxySelector;
+
+import com.jcabi.aspects.Immutable;
+import com.jcabi.aspects.Loggable;
+import com.jcabi.log.Logger;
+
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 /**
  * Resolver of dependencies for one artifact.
@@ -85,7 +94,7 @@ import org.sonatype.aether.util.repository.DefaultProxySelector;
  * </pre>
  *
  * @author Yegor Bugayenko (yegor@tpc2.com)
- * @version $Id$
+ * @version $Id: 0a0b5f63e3add63308f149df922d9878271a4749 $
  * @since 0.1.6
  * @checkstyle ClassDataAbstractionCoupling (500 lines)
  * @checkstyle ClassFanOutComplexity (500 lines)
@@ -132,15 +141,16 @@ public final class Aether {
      * @since 0.8
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-    public Aether(@NotNull final Collection<RemoteRepository> repos,
+    public Aether(@NotNull final Collection< ? extends ArtifactRepository> repos,
         @NotNull final File repo) {
-        final Collection<Repository> rlist = new LinkedList<Repository>();
-        for (final RemoteRepository remote : this.prepos(this.mrepos(repos))) {
-            rlist.add(new Repository(remote));
-        }
+        final Collection<Repository> rlist = this.prepos(this.mrepos(repos));
         this.remotes = rlist.toArray(new Repository[repos.size()]);
         this.lrepo = repo.getAbsolutePath();
     }
+    
+
+    
+    
 
     /**
      * List of transitive dependencies of the artifact.
@@ -159,6 +169,10 @@ public final class Aether {
             );
         }
         return this.resolve(root, scope, filter);
+    }
+    public List<Artifact> resolve(@NotNull final String artifactCoords,
+            @NotNull final String scope) throws DependencyResolutionException {
+    	return resolve(new DefaultArtifact(artifactCoords),scope);
     }
 
     /**
@@ -192,17 +206,47 @@ public final class Aether {
      * @return List of repositories with mirrored ones.
      */
     private Collection<RemoteRepository> mrepos(
-        final Collection<RemoteRepository> repos) {
+        final Collection< ? extends ArtifactRepository> repos) {
         final DefaultMirrorSelector selector = this.mirror(this.settings());
         final Collection<RemoteRepository> mrepos =
             new ArrayList<RemoteRepository>(repos.size());
-        for (final RemoteRepository repo : repos) {
-            final RemoteRepository mrepo = selector.getMirror(repo);
-            if (mrepo == null) {
+        for (final Object mrepo : repos) {
+        	RemoteRepository repo = null;
+        	if( ! ( mrepo instanceof RemoteRepository )  ){
+	        	if( mrepo instanceof MavenArtifactRepository){
+	        		MavenArtifactRepository mavenRepo = (MavenArtifactRepository)mrepo;
+	        		RemoteRepository.Builder builder = new RemoteRepository.Builder(mavenRepo.getId(),"default",mavenRepo.getUrl());
+	        		Authentication auth1 = null;
+	        		org.apache.maven.artifact.repository.Authentication auth = mavenRepo.getAuthentication();
+					if(auth != null){
+	        			AuthenticationBuilder authBuilder = new AuthenticationBuilder().addString(auth.getUsername(), auth.getPassword());
+	        			if(auth.getPrivateKey() != null){
+	        				authBuilder.addPrivateKey(auth.getPrivateKey(), auth.getPassphrase());
+	        			}
+	        			auth1 =authBuilder.build();
+						 builder.setAuthentication(auth1);
+	        		}
+					org.apache.maven.repository.Proxy proxy = mavenRepo.getProxy();
+					if(proxy != null){
+						builder.setProxy (   new Proxy(
+			                    proxy.getProtocol(),
+			                    proxy.getHost(),
+			                    proxy.getPort(),auth1));
+					}
+					repo = builder.build();
+	        	}
+        	}
+        		
+        	if(repo == null){
+        		repo = (RemoteRepository)mrepo;
+        	}
+        	RemoteRepository mirrored = selector.getMirror(repo);
+            if (mirrored == null) {
                 mrepos.add(repo);
             } else {
-                mrepos.add(mrepo);
+                mrepos.add(mirrored);
             }
+            
         }
         return mrepos;
     }
@@ -212,26 +256,38 @@ public final class Aether {
      * @param repos List of repositories
      * @return List of repositories with proxy
      */
-    private Collection<RemoteRepository> prepos(
+    private Collection<Repository> prepos(
         final Collection<RemoteRepository> repos
     ) {
+    	
+    	 List<Repository> retList = new LinkedList<Repository>();
+   
         final org.apache.maven.settings.Proxy proxy = this.settings()
             .getActiveProxy();
+        final DefaultProxySelector selector = new DefaultProxySelector();
+        
         if (proxy != null) {
-            final DefaultProxySelector selector = new DefaultProxySelector();
-            selector.add(
+              selector.add(
                 new Proxy(
                     proxy.getProtocol(),
                     proxy.getHost(),
                     proxy.getPort(),
-                    new Authentication(proxy.getUsername(), proxy.getPassword())
+                    new AuthenticationBuilder().addUsername(proxy.getUsername()).addPassword(proxy.getPassword()).build()
                 ), proxy.getNonProxyHosts()
             );
-            for (final RemoteRepository repo : repos) {
-                repo.setProxy(selector.getProxy(repo));
-            }
+            
+//            for (final RemoteRepository repo : repos) {
+//            
+//            	
+//            	repo.setProxy(selector.getProxy(repo));
+//            }
         }
-        return repos;
+        
+        for (final RemoteRepository repo : repos) {
+        	Proxy p = selector.getProxy(repo);
+            retList.add(new Repository(p == null ? repo : new RemoteRepository.Builder(repo).setProxy(p).build()));
+        }
+        return retList;
     }
 
     /**
@@ -333,11 +389,8 @@ public final class Aether {
      */
     private RepositorySystemSession session(final RepositorySystem system) {
         final LocalRepository local = new LocalRepository(this.lrepo);
-        final MavenRepositorySystemSession session =
-            new MavenRepositorySystemSession();
-        session.setLocalRepositoryManager(
-            system.newLocalRepositoryManager(local)
-        );
+        final DefaultRepositorySystemSession session = MavenRepositorySystemUtils.newSession();
+        session.setLocalRepositoryManager( system.newLocalRepositoryManager(session, local));
         session.setTransferListener(new LogTransferListener());
         return session;
     }

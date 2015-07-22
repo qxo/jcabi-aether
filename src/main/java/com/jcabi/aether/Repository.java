@@ -29,17 +29,20 @@
  */
 package com.jcabi.aether;
 
-import com.jcabi.aspects.Immutable;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-import org.sonatype.aether.repository.RemoteRepository;
-import org.sonatype.aether.repository.RepositoryPolicy;
+
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.repository.RemoteRepository.Builder;
+import org.eclipse.aether.repository.RepositoryPolicy;
+
+import com.jcabi.aspects.Immutable;
 
 /**
  * Parameter holder for RemoteRepository.
  * @author Krzysztof Krason (Krzysztof.Krason@gmail.com)
- * @version $Id$
+ * @version $Id: 138de995e9aedabc3e29633be4989f5561e664af $
  */
 @Immutable
 public final class Repository {
@@ -129,25 +132,33 @@ public final class Repository {
      * @return Remote repository.
      */
     public RemoteRepository remote() {
-        final RemoteRepository remote = new RemoteRepository();
-        remote.setId(this.identifier);
-        remote.setContentType(this.type);
-        remote.setUrl(this.url);
-        remote.setPolicy(false, this.release);
-        remote.setPolicy(true, this.snapshot);
+    	Builder builder = new Builder(identifier,type,url);
         if (this.authentication != null) {
-            remote.setAuthentication(this.authentication.getAuthentication());
+        	builder.setAuthentication(this.authentication.getAuthentication());
         }
         if (this.repoproxy != null) {
-            remote.setProxy(this.repoproxy.getProxy());
+        	builder.setProxy(this.repoproxy.getProxy());
         }
-        remote.setRepositoryManager(this.manager);
+        
+        builder.setRepositoryManager(this.manager);
+        
         final List<RemoteRepository> remotes =
-            new LinkedList<RemoteRepository>();
-        remote.setMirroredRepositories(remotes);
-        for (final SimpleRepository repo : this.mirrored) {
-            remotes.add(repo.remote());
-        }
+                new LinkedList<RemoteRepository>();
+            for (final SimpleRepository repo : this.mirrored) {
+                remotes.add(repo.remote());
+            }
+            builder.setMirroredRepositories(remotes);
+
+        final RemoteRepository remote = builder.build();
+//        remote.setId(this.identifier);
+//        remote.setContentType(this.type);
+//        remote.setUrl(this.url);
+//        remote.setPolicy(false, this.release);
+//        remote.setPolicy(true, this.snapshot);
+
+
+      
+
         return remote;
     }
 }

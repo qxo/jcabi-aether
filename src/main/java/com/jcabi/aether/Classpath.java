@@ -29,7 +29,6 @@
  */
 package com.jcabi.aether;
 
-import com.jcabi.aspects.Loggable;
 import java.io.File;
 import java.util.AbstractSet;
 import java.util.Arrays;
@@ -40,19 +39,24 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
 import javax.validation.constraints.NotNull;
-import lombok.EqualsAndHashCode;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.project.MavenProject;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.resolution.DependencyResolutionException;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
-import org.sonatype.aether.util.artifact.JavaScopes;
-import org.sonatype.aether.util.version.GenericVersionScheme;
-import org.sonatype.aether.version.InvalidVersionSpecificationException;
-import org.sonatype.aether.version.VersionScheme;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.util.artifact.JavaScopes;
+import org.eclipse.aether.util.version.GenericVersionScheme;
+import org.eclipse.aether.version.InvalidVersionSpecificationException;
+import org.eclipse.aether.version.VersionScheme;
+
+import com.jcabi.aspects.Loggable;
+
+import lombok.EqualsAndHashCode;
 
 /**
  * A classpath of a Maven Project.
@@ -72,7 +76,7 @@ import org.sonatype.aether.version.VersionScheme;
  * content of repositories is changed), make a new instance of the class.
  *
  * @author Yegor Bugayenko (yegor@tpc2.com)
- * @version $Id$
+ * @version $Id: 2d73a417dc8691722d63107b034466342ac37332 $
  * @since 0.7.16
  * @see Aether
  * @checkstyle ClassDataAbstractionCoupling (500 lines)

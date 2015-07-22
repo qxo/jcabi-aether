@@ -29,14 +29,17 @@
  */
 package com.jcabi.aether;
 
+
+
+import org.eclipse.aether.repository.Proxy;
+
 import com.jcabi.aspects.Immutable;
-import org.sonatype.aether.repository.Proxy;
 
 /**
  * Parameter holder for org.sonatype.aether.repository.Authentication.
  *
  * @author Mauricio Herrera (oruam85@gmail.com)
- * @version $Id$
+ * @version $Id: 4a5d4d3184b258b81df671ec842d45c9e6ebb65f $
  */
 @Immutable
 public final class RepositoryProxy {

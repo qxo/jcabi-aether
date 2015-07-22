@@ -29,19 +29,22 @@
  */
 package com.jcabi.aether;
 
+import org.apache.maven.wagon.Wagon;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.connector.wagon.WagonProvider;
+import org.kuali.maven.wagon.S3Wagon;
+
 import com.jcabi.aspects.Immutable;
 import com.jcabi.aspects.Loggable;
+
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.apache.maven.wagon.Wagon;
-import org.kuali.maven.wagon.S3Wagon;
-import org.sonatype.aether.connector.wagon.WagonProvider;
 
 /**
  * Builder of {@link RepositorySystem} class.
  *
  * @author Yegor Bugayenko (yegor@tpc2.com)
- * @version $Id$
+ * @version $Id: 0da74ea754cc04daede894d150e45ae79f9c07c7 $
  * @since 0.1.6
  */
 @Immutable

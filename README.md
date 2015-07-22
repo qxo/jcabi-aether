@@ -64,3 +64,6 @@ Please run Maven build before submitting a pull request:
 ```
 $ mvn clean install -Pqulice
 ```
+
+## How to fast install (skip all tests)
+	mvn clean install -P !jcabi-invoker   -e -DskipTests -Dassembly.skipAssembly=true

@@ -29,9 +29,6 @@
  */
 package com.jcabi.aether;
 
-import com.jcabi.log.Logger;
-import com.jcabi.log.VerboseRunnable;
-import com.jcabi.log.VerboseThreads;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,7 +39,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.maven.project.MavenProject;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.DependencyResolutionException;
+import org.eclipse.aether.util.artifact.JavaScopes;
 import org.hamcrest.CustomMatcher;
 import org.hamcrest.Matcher;
 import org.hamcrest.MatcherAssert;
@@ -52,17 +55,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.repository.Authentication;
-import org.sonatype.aether.repository.RemoteRepository;
-import org.sonatype.aether.resolution.DependencyResolutionException;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
-import org.sonatype.aether.util.artifact.JavaScopes;
+
+import com.jcabi.log.Logger;
+import com.jcabi.log.VerboseRunnable;
+import com.jcabi.log.VerboseThreads;
 
 /**
  * Test case for {@link Aether}.
  * @author Yegor Bugayenko (yegor@tpc2.com)
- * @version $Id$
+ * @version $Id: fc1a90a602ed351ec10929ee024c595a39f112c0 $
  * @checkstyle ClassDataAbstractionCoupling (500 lines)
  */
 @SuppressWarnings({ "PMD.DoNotUseThreads", "PMD.TooManyMethods" })
@@ -191,7 +192,7 @@ public final class AetherTest {
     @Test(expected = javax.validation.ConstraintViolationException.class)
     public void rejectsNullArtifact() throws Exception {
         new Aether(this.project(), this.temp.newFolder())
-            .resolve(null, JavaScopes.RUNTIME);
+            .resolve((Artifact)null, JavaScopes.RUNTIME);
     }
 
     /**
@@ -273,40 +274,39 @@ public final class AetherTest {
         final String type = "default";
         final List<RemoteRepository> repos = new LinkedList<RemoteRepository>(
             Arrays.asList(
-                new RemoteRepository(
+                new RemoteRepository.Builder(
                     "sonatype",
                     type,
                     "https://oss.sonatype.org/content/groups/public"
-                ),
-                new RemoteRepository(
+                ).build(),
+                new RemoteRepository.Builder(
                     "maven-central",
                     type,
                     "http://repo1.maven.org/maven2/"
-                ),
-                new RemoteRepository(
+                ).build(),
+                new RemoteRepository.Builder(
                     "invalid-http-repository",
                     type,
                     "http://repo1.maven.org/invalid-maven-repo/"
-                ),
-                new RemoteRepository(
+                ).build(),
+                new RemoteRepository.Builder(
                     "invalid-s3-repository",
                     type,
                     "s3://invalid-s3-repository/"
-                )
+                ).build()
             )
         );
         if (AetherTest.AWS_KEY != null) {
-            final RemoteRepository aws = new RemoteRepository(
+            final RemoteRepository aws = new RemoteRepository.Builder(
                 "aether-test",
                 type,
                 "s3://aether-test.jcabi.com/release"
-            );
-            aws.setAuthentication(
-                new Authentication(
+            ).setAuthentication(
+                new org.eclipse.aether.util.repository.AuthenticationBuilder().addString(
                     AetherTest.AWS_KEY,
                     AetherTest.AWS_SECRET
-                )
-            );
+                ).build()
+            ).build();
             repos.add(aws);
         }
         Mockito.doReturn(repos).when(project).getRemoteProjectRepositories();
